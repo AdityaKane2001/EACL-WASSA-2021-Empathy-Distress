@@ -84,7 +84,7 @@ class RoBERTa_base():
         self.bert_models = ["BERT", "DistilBERT", "RoBERTa", "custom"]
         if self.base_model_type in self.bert_models:
             self.base_model = BertModel(self.activation, self.kr_initializer, self.kr_rate, self.base_model_type, output_hidden_states=False)
-        s
+        
         # ModelCheckPoint Callback:
         if score_loss == "huber":
             cpkt = cpkt + "-kr-{}-{}-{}-{}".format(self.kr_rate, self.activation, score_loss, delta)
@@ -123,7 +123,7 @@ class RoBERTa_base():
     
     def prepare_input(self, pre, df, maxlen=200, padding_type='post', truncating_type='post', mode="train"):
         essay = [pre.clean_text(text, remove_stopwords=False, lemmatize=False) for text in df.essay.values.tolist()]          
-            return self.base_model.prepare_input(essay, maxlen)
+        return self.base_model.prepare_input(essay, maxlen)
        
 
 

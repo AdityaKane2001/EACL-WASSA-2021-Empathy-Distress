@@ -6,7 +6,7 @@ import sys
 sys.path.append('../')
 
 from utils.utils import Utils
-from bert_model import BertModel
+from .bert_model import BertModel
 import time
 import numpy as np
 from scipy.stats import pearsonr

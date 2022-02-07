@@ -5,8 +5,11 @@
 import sys
 sys.path.append('../')
 
+
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
+
 from utils.utils import Utils
-from bert_model import BertModel
+from .bert_model import BertModel
 import time
 import numpy as np
 from scipy.stats import pearsonr
@@ -21,7 +24,7 @@ from tensorflow.keras.utils import plot_model
 from tensorflow.keras.models import load_model
 from tensorflow.keras import Model
 
-
+import tensorflow as tf
 
 
 
@@ -31,7 +34,7 @@ class RoBERTa_multi_input_multi_task_plus():
 
     # ------------------------------------------------------------ Constructor ------------------------------------------------------------
     
-    def __init__(self, self.task="empathy", activation="relu", kr_rate=0.001, score_loss="mse", binary_loss="binary_crossentropy", multiclass_loss="sparse_categorical_crossentropy", cpkt="trial"):
+    def __init__(self, task="empathy", activation="relu", kr_rate=0.001, score_loss="mse", binary_loss="binary_crossentropy", multiclass_loss="sparse_categorical_crossentropy", cpkt="trial"):
         
         self.task = task
         self.kr_rate = kr_rate
@@ -91,7 +94,7 @@ class RoBERTa_multi_input_multi_task_plus():
         else:
             self.multiclass_loss = "sparse_categorical_crossentropy"
 
-        self.base_model_type = base_model_type
+        self.base_model_type = "RoBERTa"
         self.bert_models = ["BERT", "DistilBERT", "RoBERTa", "custom"]
         if self.base_model_type in self.bert_models:
             self.base_model = BertModel(self.activation, self.kr_initializer, self.kr_rate, self.base_model_type, output_hidden_states=False)
