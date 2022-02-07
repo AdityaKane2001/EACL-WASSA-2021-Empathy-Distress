@@ -2,6 +2,7 @@
 # File: mtlm.py
 # Author: Atharva Kulkarni
 
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 import sys
 sys.path.append('../')
 
@@ -11,9 +12,9 @@ import time
 import numpy as np
 from scipy.stats import pearsonr
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import class_weight
-from tensorflow.keras.layers import Input, Dense, Dropout, Concatenate, LeakyReLU, PReLU
+from tensorflow.keras import losses
+from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping, TensorBoard
@@ -21,8 +22,8 @@ from tensorflow.keras.utils import plot_model
 from tensorflow.keras.models import load_model
 from tensorflow.keras import Model
 
-
-
+import tensorflow as tf
+import matplotlib.pyplot as plt
 
 
 
@@ -31,7 +32,7 @@ class RoBERTa_multi_input_multi_task_plus():
 
     # ------------------------------------------------------------ Constructor ------------------------------------------------------------
     
-    def __init__(self, self.task="empathy", activation="relu", kr_rate=0.001, score_loss="mse", binary_loss="binary_crossentropy", multiclass_loss="sparse_categorical_crossentropy", cpkt="trial"):
+    def __init__(self, task="empathy", base_model_type="RoBERTa", activation="relu", kr_rate=0.001, score_loss="mse", binary_loss="binary_crossentropy", multiclass_loss="sparse_categorical_crossentropy", cpkt="trial"):
         
         self.task = task
         self.kr_rate = kr_rate
@@ -210,7 +211,7 @@ class RoBERTa_multi_input_multi_task_plus():
 
     # ------------------------------------------------------------ Funciton to prepare model outputs ------------------------------------------------------------
     
-    def prepare_output(self,utils,  df, mode="train"):
+    def prepare_output(self,  df, mode="train"):
         emotion = df.gold_emotion.values 
 
         if mode == "train":
@@ -241,7 +242,7 @@ class RoBERTa_multi_input_multi_task_plus():
 
     # ------------------------------------------------------------ Function to build the model ------------------------------------------------------------
     
-    def build(self, embedding_matrix, input_length=100):
+    def build(self, input_length=100):
         input_ids = Input(shape=(input_length,), name="input_ids")
         attention_mask = Input(shape=(input_length,), name="attention_mask")
         base_output = self.base_model.build(input_length)([input_ids, attention_mask])
@@ -271,7 +272,7 @@ class RoBERTa_multi_input_multi_task_plus():
         age_embedding = Embedding(input_dim=4, output_dim=3, trainable=True)(age_input)
         age_embedding = Flatten()(age_embedding)
 
-        x3 = concatenate([gender_embedding, education_embedding, race_embedding, age_embedding])
+        x3 = Concatenate([gender_embedding, education_embedding, race_embedding, age_embedding])
         x3 = Dense(32, activation=self.activation, kernel_initializer=self.kr_initializer, kernel_regularizer=l2(self.kr_rate))(x3)
         x3 = Dense(16, activation=self.activation, kernel_initializer=self.kr_initializer, kernel_regularizer=l2(self.kr_rate))(x3)
 
@@ -283,7 +284,7 @@ class RoBERTa_multi_input_multi_task_plus():
         personality_input = Input(shape=(len(self.personality_features),), name="personality_input")
         personality_dense = Dense(8, activation=self.activation, kernel_initializer=self.kr_initializer)(personality_input)
 
-        x4 = concatenate([iri_dense, personality_dense])
+        x4 = Concatenate([iri_dense, personality_dense])
         x4 = Dense(32, activation=self.activation, kernel_initializer=self.kr_initializer, kernel_regularizer=l2(self.kr_rate))(x4)
 
         # Predict Score

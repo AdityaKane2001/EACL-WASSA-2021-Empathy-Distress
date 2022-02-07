@@ -34,7 +34,7 @@ class Preprocess():
     
     # -------------------------------------------- Class Constructor --------------------------------------------
     
-    def __init__(self, mode="normalize", contractions_model_path="/home/eastwind/word-embeddings/word2vec/GoogleNews-vectors-negative300.bin"):
+    def __init__(self, mode="normalize", contractions_model_path="./GoogleNews-vectors-negative300.bin"):
         """ Class Constructor
         @param contractions_model_path (str): model to be loaded for contractions expansion.
         """
